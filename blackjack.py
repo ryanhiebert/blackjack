@@ -5,11 +5,17 @@ import random
 SUITS = SPADES, CLUBS, HEARTS, DIAMONDS = '\u2660\u2663\u2665\u2666'
 RANKS = tuple('A23456789') + ('10', 'J', 'Q', 'K')
 
+COLORS = 'BLACK', 'RED', 'GREEN', 'YELLOW', 'BLUE', 'MAGENTA', 'CYAN', 'WHITE'
+
 try:
     input = raw_input
     str = unicode
 except NameError:
     pass
+
+def colorize(text, color_name='RED', bold=False):
+    return '\033[{0};{1}m{2}\033[0m'.format(
+        int(bold), COLORS.index(color_name), text)
 
 def score(hand):
     score, aces = 0, 0
@@ -26,6 +32,12 @@ def score(hand):
         scorelist.append(scorelist[-1] + 10)
     return tuple(scorelist)
 
+def colored_card(card):
+    card = card[0] + ' ' + card[1:]
+    if card[0] in SUITS[-2:]:
+        card = colorize(card)
+    return card
+
 def deep(hand):
     """Checks if a player's hand is deep (has been split)"""
     return len(hand) > 1 and len(hand[0]) > 1 and len(hand[0][0]) > 1
@@ -35,10 +47,10 @@ def out_game(player, dealer, pot):
     pot_out = 'Pot: ' + str(pot) + '\n'
     dealer_out = 'Dealer: ' + str(score(dealer)) + ' - '
     for i, card in enumerate(dealer):
-        dealer_out += card[0] + ' ' + card[1:]
+        dealer_out += colored_card(card)
         if i + 1 < len(dealer):
             dealer_out += ','
-    dealer_out += ' | '
+    dealer_out += (' ') * (30 - len(dealer_out)) + '  |  '
     
     if deep(player):
         player_out = 'Player: ' + 'a: ' + str(score(player)) + ' - '
@@ -47,7 +59,7 @@ def out_game(player, dealer, pot):
                 player_out += ' ' * (len(dealer_out) + 8)
             player_out += 'abcd'[i] + ': ' + str(score(hand)) + ' - '
             for j, card in enumerate(hand):
-                player_out += card[0] + ' ' + card[1:]
+                player_out += colored_card(card)
                 if j + 1 < len(hand):
                     player_out += ','
             if i + 1 < len(player):
@@ -55,7 +67,7 @@ def out_game(player, dealer, pot):
     else:
         player_out = 'Player: ' + str(score(player)) + ' - '
         for i, card in enumerate(player):
-            player_out += card[0] + ' ' + card[1:]
+            player_out += colored_card(card)
             if i + 1 < len(player):
                 player_out += ','
     print('\n' + pot_out + dealer_out + player_out + '\n')
@@ -76,6 +88,7 @@ while True:
 pot = 100
 while True:
     deck = [suit + rank for suit in SUITS for rank in RANKS] * decks
+    print('Shuffling the deck')
     random.shuffle(deck)
     while True:
         player, dealer = [], []
