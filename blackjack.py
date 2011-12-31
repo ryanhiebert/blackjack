@@ -12,8 +12,7 @@ except NameError:
     pass
 
 def score(hand):
-    score = 0
-    aces = []
+    score, aces = 0, 0
     for card in hand:
         rank = card[1:]
         if rank in tuple('JQK'):
@@ -22,22 +21,21 @@ def score(hand):
             aces += 1
         else:
             score += RANKS.index(rank) + 1
-    scorelist = [score + len(aces)]
-    for ace in aces:
+    scorelist = [score + aces]
+    for ace in range(aces):
         scorelist.append(scorelist[-1] + 10)
-        score = tuple(scorelist)
-    return score
+    return tuple(scorelist)
 
 def deep(hand):
     """Checks if a player's hand is deep (has been split)"""
-    return len(hand) > 1 and len(hand)[0] > 1 and len(hand)[0][0] > 1
+    return len(hand) > 1 and len(hand[0]) > 1 and len(hand[0][0]) > 1
 
 def out_game(player, dealer, pot):
     """Write the state of the game to the screen"""
     pot_out = 'Pot: ' + str(pot) + '\n'
     dealer_out = 'Dealer: ' + str(score(dealer)) + ' - '
     for i, card in enumerate(dealer):
-        dealer_out += card
+        dealer_out += card[0] + ' ' + card[1:]
         if i + 1 < len(dealer):
             dealer_out += ','
     dealer_out += ' | '
@@ -49,15 +47,15 @@ def out_game(player, dealer, pot):
                 player_out += ' ' * (len(dealer_out) + 8)
             player_out += 'abcd'[i] + ': ' + str(score(hand)) + ' - '
             for j, card in enumerate(hand):
-                player_out += card
+                player_out += card[0] + ' ' + card[1:]
                 if j + 1 < len(hand):
                     player_out += ','
             if i + 1 < len(player):
                 player_out += '\n'
     else:
-        player_out = 'Player: ' + str(score(player))
+        player_out = 'Player: ' + str(score(player)) + ' - '
         for i, card in enumerate(player):
-            player_out += card
+            player_out += card[0] + ' ' + card[1:]
             if i + 1 < len(player):
                 player_out += ','
     print('\n' + pot_out + dealer_out + player_out + '\n')
@@ -72,6 +70,7 @@ while True:
     except ValueError:
         print('Please Enter an Integer.')
     except (KeyboardInterrupt, EOFError):
+        print()
         raise SystemExit
 
 pot = 100
@@ -93,6 +92,9 @@ while True:
                     break
             except ValueError:
                 print('Please Enter an Integer')
+            except (KeyboardInterrupt, EOFError):
+                print()
+                raise SystemExit
         dealer.append(deck.pop())
         player.append(deck.pop())
         player.append(deck.pop())
@@ -100,7 +102,11 @@ while True:
         while True:
             if tuple(score(player))[0] > 21:
                 break
-            choice = input('(h)it, (s)tand, or (d)ouble down? ')
+            try:
+                choice = input('(h)it, (s)tand, or (d)ouble down? ')
+            except (KeyboardInterrupt, EOFError):
+                print()
+                raise SystemExit
             if choice == 'h' or choice == 'H':
                 player.append(deck.pop())
                 out_game(player, dealer, pot)
@@ -164,7 +170,13 @@ while True:
             break
         elif decks > 11 and len(deck) < 42:
             break
-        elif input('Would you like to shuffle the deck? (y/N)') in tuple('nN'):
-            break
+        else:
+            try:
+                cont = input('Would you like to shuffle the deck? (y/N)')
+            except (KeyboardInterrupt, EOFError):
+                print()
+                raise SystemExit
+            if cont in tuple('nN'):
+                break
     if pot < 1:
         print('You are all out of money.  Goodbye :-(')
