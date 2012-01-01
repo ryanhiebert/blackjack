@@ -15,7 +15,7 @@ except NameError:
 
 def colorize(text, color_name='RED', bold=False):
     return '\033[{0};{1}m{2}\033[0m'.format(
-        int(bold), COLORS.index(color_name), text)
+        int(bold), COLORS.index(color_name) + 30, text)
 
 def score(hand):
     score, aces = 0, 0
