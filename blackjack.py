@@ -14,7 +14,6 @@ def colorize(text, color, bold=False):
     return template.format(int(bold), COLORS.index(color) + 30, text)
 
 class Player(object):
-    """A player in a BlackJack game"""
     def __init__(self, pot=None):
         """set pot and set hands as []"""
         self.pot, self.hands = pot, []
