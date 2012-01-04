@@ -9,9 +9,14 @@ SUITS = SPADES, CLUBS, HEARTS, DIAMONDS = '\u2660\u2663\u2665\u2666'
 RANKS = tuple('A23456789') + ('10', 'J', 'Q', 'K')
 COLORS = 'BLACK', 'RED', 'GREEN', 'YELLOW', 'BLUE', 'MAGENTA', 'CYAN', 'WHITE'
 
+COLORIZE = False # Until I can get the character counting to work right
+
 def colorize(text, color, bold=False):
-    template = '\033[{0};{1}m{2}\033[0m'
-    return template.format(int(bold), COLORS.index(color) + 30, text)
+    if COLORIZE:
+        template = '\033[{0};{1}m{2}\033[0m'
+        return template.format(int(bold), COLORS.index(color) + 30, text)
+    else:
+        return text
 
 class Player(object):
     def __init__(self, pot=None):
@@ -70,6 +75,7 @@ class Game(object):
             dealer_out += ('' * (30 - len(dealer_out))) + '  |  '
         player_out = 'Player: '
         if len(self.players[0].hands) > 1:
+            print('more than one hand')
             for i, hand in enumerate(self.players[0].hands):
                 if i > 0:
                     player_out += ' ' * (len(dealer_out) + 8)
@@ -77,6 +83,7 @@ class Game(object):
                 player_out += hand.out() + '\n'
             player_out = player_out[:-1] # Remove Final Newline
         else:
+            print('only one hand')
             player_out += str(self.players[0].hands[0].score()) + ' - '
             player_out += self.players[0].hands[0].out()
         return dealer_out + player_out
@@ -157,7 +164,7 @@ if __name__ == '__main__':
             while True:
                 # Player's Turn
                 hand = player.hands[0]
-                if hand.score() > 21 or 21 in score:
+                if hand.score()[-1] > 21 or 21 in hand.score():
                     break
                 choice = get_input('(h)it, (s)tand, or (d)ouble down? ')
                 if choice in tuple('hH'):
