@@ -129,7 +129,7 @@ while True:
             elif (choice == 'd' or choice == 'D'):
                 if pot > bet:
                     pot -= bet
-                    bet *- 2
+                    bet *= 2
                     player.append(deck.pop())
                     out_game(player, dealer)
                     break
@@ -178,6 +178,8 @@ while True:
             else:
                 msg = 'You Win! You bet {0}, so your pot is now {1} richer!'
                 print(msg.format(str(bet), str(bet * 2)))
+                pot += bet * 2
+                bet = 0
 
         if ((decks == 1 and len(deck) < 17) or
             (decks == 2 and len(deck) < 24) or
